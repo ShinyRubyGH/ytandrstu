@@ -26,18 +26,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        try {
-            YoutubeDL.getInstance().init(application)
-            FFmpeg.getInstance().init(application)
-        } catch (e: Exception) {
-            Toast.makeText(this, "Error initializing YoutubeDL: ${e.message}", Toast.LENGTH_LONG).show()
-        }
-
         enableEdgeToEdge()
         setContent {
             YTDownloaderTheme { 
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) { 
-                    DownloaderScreen() 
+                    DownloaderScreen(application) 
                 } 
             }
         }
@@ -45,10 +38,28 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun DownloaderScreen() {
+fun DownloaderScreen(application: android.app.Application) {
     var url by remember { mutableStateOf("") }
-    var status by remember { mutableStateOf("Listo") }
+    var status by remember { mutableStateOf("Inicializando...") }
     var isDownloading by remember { mutableStateOf(false) }
+    var isInitialized by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            try {
+                YoutubeDL.getInstance().init(application)
+                FFmpeg.getInstance().init(application)
+                withContext(Dispatchers.Main) {
+                    status = "Listo para descargar"
+                    isInitialized = true
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    status = "Error crítico de inicio: ${e.message}"
+                }
+            }
+        }
+    }
 
     Column(modifier = Modifier.padding(16.dp).fillMaxSize(), verticalArrangement = Arrangement.Center) {
         Text("Downloader Universal (Offline)", style = MaterialTheme.typography.headlineMedium)
@@ -102,7 +113,7 @@ fun DownloaderScreen() {
                     }
                 }
             },
-            enabled = url.isNotBlank() && !isDownloading,
+            enabled = url.isNotBlank() && !isDownloading && isInitialized,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Descargar")
