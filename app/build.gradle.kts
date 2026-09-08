@@ -53,9 +53,9 @@ dependencies {
   implementation(libs.androidx.lifecycle.runtime.ktx)
   implementation(libs.androidx.activity.compose)
   
-  // YouTube DL Android
-  implementation("com.github.yausername.youtubedl-android:library:0.17.2")
-  implementation("com.github.yausername.youtubedl-android:ffmpeg:0.17.2")
+  // YouTube DL Android (Maintained Fork)
+  implementation("io.github.junkfood02.youtubedl-android:library:0.18.1")
+  implementation("io.github.junkfood02.youtubedl-android:ffmpeg:0.18.1")
 
   // Arch Components
   implementation(libs.androidx.lifecycle.runtime.compose)
