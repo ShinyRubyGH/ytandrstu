@@ -47,8 +47,14 @@ fun DownloaderScreen(application: android.app.Application) {
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             try {
+                withContext(Dispatchers.Main) { status = "Inicializando núcleo..." }
                 YoutubeDL.getInstance().init(application)
                 FFmpeg.getInstance().init(application)
+                
+                withContext(Dispatchers.Main) { status = "Buscando actualizaciones de yt-dlp..." }
+                // Update yt-dlp to latest version to fix YouTube 403 Forbidden errors
+                YoutubeDL.getInstance().updateYoutubeDL(application, YoutubeDL.UpdateChannel.STABLE)
+                
                 withContext(Dispatchers.Main) {
                     status = "Listo para descargar"
                     isInitialized = true
