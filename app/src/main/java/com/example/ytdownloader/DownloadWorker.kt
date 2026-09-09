@@ -77,6 +77,8 @@ class DownloadWorker(
                 }
             }
             
+            val finalNotifId = title.hashCode()
+            
             // Show completion notification (not foreground)
             val completedNotif = NotificationCompat.Builder(context, "ytd_downloads_completed")
                 .setContentTitle("Descarga Completada")
@@ -84,17 +86,21 @@ class DownloadWorker(
                 .setSmallIcon(android.R.drawable.stat_sys_download_done)
                 .setAutoCancel(true)
                 .build()
-            notificationManager.notify(1002, completedNotif)
+            notificationManager.notify(finalNotifId, completedNotif)
             
             return Result.success()
         } catch (e: Exception) {
+            val errorMsg = e.message ?: "Error desconocido"
+            val finalNotifId = title.hashCode()
+            
             val errorNotif = NotificationCompat.Builder(context, "ytd_downloads_completed")
-                .setContentTitle("Error en la descarga")
-                .setContentText(e.message)
+                .setContentTitle("Error: $title")
+                .setContentText(errorMsg)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(errorMsg))
                 .setSmallIcon(android.R.drawable.stat_notify_error)
                 .setAutoCancel(true)
                 .build()
-            notificationManager.notify(1002, errorNotif)
+            notificationManager.notify(finalNotifId, errorNotif)
             return Result.failure(workDataOf("ERROR" to e.message))
         }
     }
