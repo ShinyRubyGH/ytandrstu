@@ -167,7 +167,11 @@ fun DownloaderTab(application: android.app.Application, initialUrl: String = "")
                 FFmpeg.getInstance().init(application)
                 
                 withContext(Dispatchers.Main) { status = "Buscando actualizaciones (2/2)..." }
-                YoutubeDL.getInstance().updateYoutubeDL(application, YoutubeDL.UpdateChannel.STABLE)
+                try {
+                    YoutubeDL.getInstance().updateYoutubeDL(application, YoutubeDL.UpdateChannel.STABLE)
+                } catch (e: Exception) {
+                    // Ignore update failures, we can still use the embedded version
+                }
                 
                 withContext(Dispatchers.Main) {
                     status = "Listo para buscar"
