@@ -196,7 +196,7 @@ fun DownloaderTab(application: android.app.Application, initialUrl: String = "")
             color = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = "YT, Insta y Tikitoki+" +
+            text = "YT, Insta y Tikitoki" +
                     "",
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

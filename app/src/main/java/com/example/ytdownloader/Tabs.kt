@@ -37,10 +37,11 @@ fun MainScreen(application: android.app.Application, initialUrl: String = "") {
             }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
-            if (selectedTab == 0) {
+        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize().offset(x = if (selectedTab == 0) 0.dp else 10000.dp)) {
                 DownloaderTab(application, initialUrl)
-            } else {
+            }
+            Box(modifier = Modifier.fillMaxSize().offset(x = if (selectedTab == 1) 0.dp else 10000.dp)) {
                 GalleryTab()
             }
         }
