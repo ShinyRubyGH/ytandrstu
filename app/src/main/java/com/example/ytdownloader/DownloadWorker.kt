@@ -78,22 +78,20 @@ class DownloadWorker(
             }
             
             // Show completion notification (not foreground)
-            val completedNotif = NotificationCompat.Builder(context, channelId)
+            val completedNotif = NotificationCompat.Builder(context, "ytd_downloads_completed")
                 .setContentTitle("Descarga Completada")
                 .setContentText(title)
                 .setSmallIcon(android.R.drawable.stat_sys_download_done)
-                .setContentIntent(getPendingIntent())
                 .setAutoCancel(true)
                 .build()
             notificationManager.notify(1002, completedNotif)
             
             return Result.success()
         } catch (e: Exception) {
-            val errorNotif = NotificationCompat.Builder(context, channelId)
+            val errorNotif = NotificationCompat.Builder(context, "ytd_downloads_completed")
                 .setContentTitle("Error en la descarga")
                 .setContentText(e.message)
                 .setSmallIcon(android.R.drawable.stat_notify_error)
-                .setContentIntent(getPendingIntent())
                 .setAutoCancel(true)
                 .build()
             notificationManager.notify(1002, errorNotif)
@@ -135,12 +133,20 @@ class DownloadWorker(
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
+            val channelProgress = NotificationChannel(
                 channelId,
-                "Descargas",
+                "Descargas en curso",
                 NotificationManager.IMPORTANCE_LOW // Low priority prevents sound/vibration on every update
             )
-            notificationManager.createNotificationChannel(channel)
+            
+            val channelCompleted = NotificationChannel(
+                "ytd_downloads_completed",
+                "Descargas finalizadas",
+                NotificationManager.IMPORTANCE_HIGH // High priority for sound/vibration alert
+            )
+            
+            notificationManager.createNotificationChannel(channelProgress)
+            notificationManager.createNotificationChannel(channelCompleted)
         }
     }
 }
