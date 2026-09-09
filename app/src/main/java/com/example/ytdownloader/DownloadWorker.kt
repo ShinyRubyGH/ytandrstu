@@ -82,6 +82,8 @@ class DownloadWorker(
                 .setContentTitle("Descarga Completada")
                 .setContentText(title)
                 .setSmallIcon(android.R.drawable.stat_sys_download_done)
+                .setContentIntent(getPendingIntent())
+                .setAutoCancel(true)
                 .build()
             notificationManager.notify(1002, completedNotif)
             
@@ -91,6 +93,8 @@ class DownloadWorker(
                 .setContentTitle("Error en la descarga")
                 .setContentText(e.message)
                 .setSmallIcon(android.R.drawable.stat_notify_error)
+                .setContentIntent(getPendingIntent())
+                .setAutoCancel(true)
                 .build()
             notificationManager.notify(1002, errorNotif)
             return Result.failure(workDataOf("ERROR" to e.message))
@@ -106,12 +110,25 @@ class DownloadWorker(
         }
     }
 
+    private fun getPendingIntent(): android.app.PendingIntent {
+        val intent = android.content.Intent(context, MainActivity::class.java).apply {
+            flags = android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        return android.app.PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
     private fun getNotification(title: String, progress: Int): Notification {
         return NotificationCompat.Builder(context, channelId)
             .setContentTitle("Descargando: $title")
             .setContentText("Progreso: $progress%")
             .setSmallIcon(android.R.drawable.stat_sys_download)
             .setProgress(100, progress, false)
+            .setContentIntent(getPendingIntent())
             .setOngoing(true)
             .build()
     }

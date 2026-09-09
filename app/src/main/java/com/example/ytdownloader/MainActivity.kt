@@ -104,6 +104,33 @@ fun DownloaderScreen(application: android.app.Application) {
     var selectedOption by remember { mutableStateOf(options[0]) }
 
     val coroutineScope = rememberCoroutineScope()
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val liveData = workManager.getWorkInfosByTagLiveData("ytd_download")
+        val observer = androidx.lifecycle.Observer<List<WorkInfo>> { infos ->
+            val active = infos.find { !it.state.isFinished }
+            if (active != null) {
+                isDownloading = true
+                val p = active.progress.getInt("PROGRESS", 0)
+                progressValue = p / 100f
+                status = "Descargando: $p%"
+            } else if (isDownloading) {
+                // Find latest completed/failed
+                val lastFinished = infos.maxByOrNull { it.id.toString() }
+                if (lastFinished?.state == WorkInfo.State.SUCCEEDED) {
+                    status = "¡Completado! Guardado en Descargas."
+                } else if (lastFinished?.state == WorkInfo.State.FAILED) {
+                    status = "Error en la descarga."
+                }
+                isDownloading = false
+            }
+        }
+        liveData.observe(lifecycleOwner, observer)
+        onDispose {
+            liveData.removeObserver(observer)
+        }
+    }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
@@ -267,40 +294,12 @@ fun DownloaderScreen(application: android.app.Application) {
                                 .build()
 
                             val workRequest = OneTimeWorkRequestBuilder<DownloadWorker>()
+                                .addTag("ytd_download")
                                 .setInputData(inputData)
                                 .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                                 .build()
 
                             workManager.enqueue(workRequest)
-
-                            val liveData = workManager.getWorkInfoByIdLiveData(workRequest.id)
-                            val observer = object : androidx.lifecycle.Observer<WorkInfo> {
-                                override fun onChanged(value: WorkInfo) {
-                                    when (value.state) {
-                                        WorkInfo.State.RUNNING -> {
-                                            val p = value.progress.getInt("PROGRESS", 0)
-                                            progressValue = p / 100f
-                                            status = "Descargando: $p%"
-                                        }
-                                        WorkInfo.State.SUCCEEDED -> {
-                                            status = "¡Completado! Guardado en Descargas."
-                                            isDownloading = false
-                                            liveData.removeObserver(this)
-                                        }
-                                        WorkInfo.State.FAILED -> {
-                                            status = "Error en la descarga."
-                                            isDownloading = false
-                                            liveData.removeObserver(this)
-                                        }
-                                        WorkInfo.State.CANCELLED -> {
-                                            isDownloading = false
-                                            liveData.removeObserver(this)
-                                        }
-                                        else -> {}
-                                    }
-                                }
-                            }
-                            liveData.observeForever(observer)
                         },
                         enabled = !isDownloading,
                         modifier = Modifier.fillMaxWidth().height(56.dp),
