@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <!-- yt-dlp might need to connect to some weird domains, but enforcing HTTPS is safer -->
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Allow cleartext for localhost if a local server is ever used -->
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">localhost</domain>
+    </domain-config>
+</network-security-config>
