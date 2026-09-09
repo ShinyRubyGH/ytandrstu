@@ -176,36 +176,38 @@ fun DownloaderScreen(application: android.app.Application) {
                 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Action Buttons
-                if (videoTitle == null) {
-                    Button(
-                        onClick = { 
-                            isFetchingInfo = true
-                            status = "Buscando información..."
-                            coroutineScope.launch(Dispatchers.IO) {
-                                try {
-                                    val info = YoutubeDL.getInstance().getInfo(url)
-                                    withContext(Dispatchers.Main) {
-                                        videoTitle = info.title
-                                        videoThumbnail = info.thumbnail
-                                        isFetchingInfo = false
-                                        status = "Video encontrado"
-                                    }
-                                } catch (e: Exception) {
-                                    withContext(Dispatchers.Main) {
-                                        status = "Error buscando: ${e.message}"
-                                        isFetchingInfo = false
-                                    }
+                // Automatic Metadata Fetch
+                LaunchedEffect(url) {
+                    if (url.isNotBlank() && (url.startsWith("http://") || url.startsWith("https://"))) {
+                        isFetchingInfo = true
+                        status = "Buscando información del video..."
+                        withContext(Dispatchers.IO) {
+                            try {
+                                val info = YoutubeDL.getInstance().getInfo(url)
+                                withContext(Dispatchers.Main) {
+                                    videoTitle = info.title
+                                    videoThumbnail = info.thumbnail
+                                    isFetchingInfo = false
+                                    status = "Video encontrado"
+                                }
+                            } catch (e: Exception) {
+                                withContext(Dispatchers.Main) {
+                                    status = "Error buscando: ${e.message}"
+                                    isFetchingInfo = false
                                 }
                             }
-                        },
-                        enabled = url.isNotBlank() && !isFetchingInfo && isInitialized,
-                        modifier = Modifier.fillMaxWidth().height(56.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(if (isFetchingInfo) "Buscando..." else "Buscar Video", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        }
+                    } else {
+                        videoTitle = null
+                        videoThumbnail = null
                     }
-                } else {
+                }
+
+                if (isFetchingInfo) {
+                    Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else if (videoTitle != null) {
                     // Preview Card
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
