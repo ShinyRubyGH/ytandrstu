@@ -177,24 +177,19 @@ fun DownloaderScreen(application: android.app.Application) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Downloader",
+            text = "Descargador de videos pulento",
             fontSize = 32.sp,
             fontWeight = FontWeight.ExtraBold,
             color = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = "Universal & Offline",
+            text = "YT, Insta y Tikitoki",
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 24.dp)
         )
         
-        val images = listOf(R.drawable.foto1, R.drawable.foto2, R.drawable.foto3, R.drawable.foto4, R.drawable.foto5)
-        LazyRow(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(images) { imageRes ->
-                Image(painter = painterResource(id = imageRes), contentDescription = "Foto", contentScale = ContentScale.Crop, modifier = Modifier.size(100.dp).clip(RoundedCornerShape(12.dp)))
-            }
-        }
+
         
         Card(
             modifier = Modifier.fillMaxWidth(),
