@@ -241,6 +241,13 @@ fun DownloaderTab(application: android.app.Application, initialUrl: String = "")
                                 val request = com.yausername.youtubedl_android.YoutubeDLRequest(url)
                                 request.addOption("--no-check-certificates")
                                 request.addOption("--force-ipv4")
+                                
+                                // Para que la vista previa de Playlists sea instantánea y no se quede cargando horas,
+                                // le decimos que solo analice el primer video de la lista para mostrar la foto.
+                                if (url.contains("list=")) {
+                                    request.addOption("--playlist-items", "1")
+                                }
+                                
                                 val info = YoutubeDL.getInstance().getInfo(request)
                                 withContext(Dispatchers.Main) {
                                     videoTitle = info.title
