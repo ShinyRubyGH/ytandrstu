@@ -78,10 +78,23 @@ class MainActivity : ComponentActivity() {
         }
 
         enableEdgeToEdge()
+        
+        var sharedUrl = ""
+        if (intent?.action == android.content.Intent.ACTION_SEND) {
+            val text = intent.getStringExtra(android.content.Intent.EXTRA_TEXT)
+            if (text != null) {
+                val regex = Regex("https?://[\\w\\.-]+(?:/[\\w\\.-]*)*")
+                val match = regex.find(text)
+                if (match != null) {
+                    sharedUrl = match.value
+                }
+            }
+        }
+
         setContent {
             YTDownloaderTheme { 
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) { 
-                    DownloaderScreen(application) 
+                    MainScreen(application, sharedUrl) 
                 } 
             }
         }
@@ -90,9 +103,9 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DownloaderScreen(application: android.app.Application) {
+fun DownloaderTab(application: android.app.Application, initialUrl: String = "") {
     val context = LocalContext.current
-    var url by remember { mutableStateOf("") }
+    var url by remember { mutableStateOf(initialUrl) }
     var status by remember { mutableStateOf("Iniciando motor...") }
     var isInitialized by remember { mutableStateOf(false) }
     
@@ -183,7 +196,8 @@ fun DownloaderScreen(application: android.app.Application) {
             color = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = "YT, Insta y Tikitoki",
+            text = "YT, Insta y Tikitoki+" +
+                    "",
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 24.dp)

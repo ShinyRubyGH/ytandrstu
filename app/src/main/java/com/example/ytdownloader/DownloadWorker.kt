@@ -45,14 +45,25 @@ class DownloadWorker(
             request.addOption("--no-check-certificates")
             request.addOption("--force-ipv4")
 
+            val isPlaylist = url.contains("list=")
+            if (isPlaylist) {
+                request.addOption("--yes-playlist")
+            } else {
+                request.addOption("--no-playlist")
+            }
+            
+            val filenameTmpl = if (isPlaylist) "%(playlist_title)s_%(playlist_index)s_%(title)s" else "%(title)s_$uniqueId"
+
             if (format == "mp3") {
-                val outtmpl = File(downloadDir, "%(title)s_$uniqueId.%(ext)s").absolutePath
+                val outtmpl = File(downloadDir, "$filenameTmpl.%(ext)s").absolutePath
                 request.addOption("-o", outtmpl)
                 request.addOption("-x")
                 request.addOption("--audio-format", "mp3")
                 request.addOption("--audio-quality", "0")
+                request.addOption("--embed-metadata")
+                request.addOption("--embed-thumbnail")
             } else {
-                val outtmpl = File(downloadDir, "%(title)s_$uniqueId.mp4").absolutePath
+                val outtmpl = File(downloadDir, "$filenameTmpl.mp4").absolutePath
                 request.addOption("-o", outtmpl)
                 
                 if (url.contains("tiktok.com") || url.contains("instagram.com")) {
