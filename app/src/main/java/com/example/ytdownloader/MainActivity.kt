@@ -49,20 +49,32 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
 
     private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (!isGranted) {
-            Toast.makeText(this, "Permiso de notificaciones denegado", Toast.LENGTH_SHORT).show()
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val ungranted = permissions.filter { !it.value }.keys
+        if (ungranted.isNotEmpty()) {
+            Toast.makeText(this, "Faltan permisos necesarios", Toast.LENGTH_LONG).show()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        val permissionsToRequest = mutableListOf<String>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
+            permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+            permissionsToRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            permissionsToRequest.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+
+        val needed = permissionsToRequest.filter { 
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED 
+        }
+        
+        if (needed.isNotEmpty()) {
+            requestPermissionLauncher.launch(needed.toTypedArray())
         }
 
         enableEdgeToEdge()

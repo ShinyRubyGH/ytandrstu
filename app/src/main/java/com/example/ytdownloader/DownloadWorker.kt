@@ -85,6 +85,8 @@ class DownloadWorker(
                 .setContentText(title)
                 .setSmallIcon(android.R.drawable.stat_sys_download_done)
                 .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .build()
             notificationManager.notify(finalNotifId, completedNotif)
             
@@ -99,6 +101,8 @@ class DownloadWorker(
                 .setStyle(NotificationCompat.BigTextStyle().bigText(errorMsg))
                 .setSmallIcon(android.R.drawable.stat_notify_error)
                 .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .build()
             notificationManager.notify(finalNotifId, errorNotif)
             return Result.failure(workDataOf("ERROR" to e.message))
@@ -149,7 +153,10 @@ class DownloadWorker(
                 "ytd_downloads_completed",
                 "Descargas finalizadas",
                 NotificationManager.IMPORTANCE_HIGH // High priority for sound/vibration alert
-            )
+            ).apply {
+                enableVibration(true)
+                vibrationPattern = longArrayOf(0, 500, 200, 500)
+            }
             
             notificationManager.createNotificationChannel(channelProgress)
             notificationManager.createNotificationChannel(channelCompleted)
