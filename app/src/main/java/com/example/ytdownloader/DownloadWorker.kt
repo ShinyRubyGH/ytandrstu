@@ -42,6 +42,8 @@ class DownloadWorker(
             val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             val uniqueId = UUID.randomUUID().toString().substring(0, 5)
             val request = YoutubeDLRequest(url)
+            request.addOption("--no-check-certificates")
+            request.addOption("--force-ipv4")
 
             if (format == "mp3") {
                 val outtmpl = File(downloadDir, "%(title)s_$uniqueId.%(ext)s").absolutePath

@@ -225,7 +225,10 @@ fun DownloaderScreen(application: android.app.Application) {
                         status = "Buscando información del video..."
                         withContext(Dispatchers.IO) {
                             try {
-                                val info = YoutubeDL.getInstance().getInfo(url)
+                                val request = com.yausername.youtubedl_android.YoutubeDLRequest(url)
+                                request.addOption("--no-check-certificates")
+                                request.addOption("--force-ipv4")
+                                val info = YoutubeDL.getInstance().getInfo(request)
                                 withContext(Dispatchers.Main) {
                                     videoTitle = info.title
                                     videoThumbnail = info.thumbnail
