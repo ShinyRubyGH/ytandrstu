@@ -88,4 +88,10 @@ dependencies {
   implementation(libs.androidx.navigation3.ui)
   implementation(libs.androidx.navigation3.runtime)
   implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+
+  // Background Processing (WorkManager)
+  implementation("androidx.work:work-runtime-ktx:2.9.0")
+  
+  // Image Loading (Coil for Compose)
+  implementation("io.coil-kt:coil-compose:2.5.0")
 }
