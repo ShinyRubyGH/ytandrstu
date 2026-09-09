@@ -83,10 +83,10 @@ class MainActivity : ComponentActivity() {
         if (intent?.action == android.content.Intent.ACTION_SEND) {
             val text = intent.getStringExtra(android.content.Intent.EXTRA_TEXT)
             if (text != null) {
-                val regex = Regex("https?://[\\w\\.-]+(?:/[\\w\\.-]*)*")
-                val match = regex.find(text)
-                if (match != null) {
-                    sharedUrl = match.value
+                // Find the first word that starts with http to grab full URLs with query parameters like ?v=...
+                val extracted = text.split("\\s+".toRegex()).firstOrNull { it.startsWith("http") }
+                if (extracted != null) {
+                    sharedUrl = extracted
                 }
             }
         }
